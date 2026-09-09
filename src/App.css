@@ -4,7 +4,7 @@
 
 .page {
   position: relative;
-  min-height: 100vh;
+  min-height: 100svh;
   overflow: hidden;
   background: #101010;
 }
@@ -14,48 +14,143 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background: #0a0a0a;
-}
-
-.silk-background::before {
-  content: '';
-  position: absolute;
-  inset: -25%;
-  background:
-    radial-gradient(ellipse at 25% 45%, rgba(206, 220, 231, 0.3), transparent 18%),
-    radial-gradient(ellipse at 72% 55%, rgba(99, 120, 137, 0.25), transparent 22%),
-    linear-gradient(112deg, #080b10 12%, #4c5d6b 35%, #121820 48%, #7f929e 60%, #080b10 78%);
-  background-size: 180% 180%;
-  filter: blur(28px);
-  animation: satin-drift 4s ease-in-out infinite alternate;
+  background: #16051c;
 }
 
 .silk-cloth {
-  position: relative;
-  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
-  mix-blend-mode: screen;
+  background: #16051c;
 }
 
-@keyframes satin-drift {
-  from {
-    transform: translate3d(-12%, 3%, 0) rotate(-5deg) scale(1.12);
-    background-position: 0% 50%;
-  }
-  to {
-    transform: translate3d(12%, -3%, 0) rotate(5deg) scale(1.12);
-    background-position: 100% 50%;
-  }
+.silk-cloth--fallback {
+  background: linear-gradient(135deg, #16051c, #4b0d42 48%, #8d1d68 72%, #24102e);
 }
 
 .content {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
+  min-height: 100svh;
+  box-sizing: border-box;
+  padding: max(32px, env(safe-area-inset-top))
+    max(24px, env(safe-area-inset-right))
+    max(32px, env(safe-area-inset-bottom))
+    max(24px, env(safe-area-inset-left));
   display: grid;
   place-items: center;
   color: white;
   text-align: center;
+}
+
+.brand-lockup {
+  width: min(100%, 720px);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.brand-name,
+.tagline,
+.handle {
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.brand-name {
+  color: #ffffff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.08rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-shadow: 0 2px 18px rgba(18, 3, 25, 0.85);
+}
+
+.content h1 {
+  margin: 0;
+  font-size: 72px;
+  line-height: 0.92;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.tagline {
+  color: #f2c7dc;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 36px;
+  font-style: italic;
+  letter-spacing: 0.06em;
+  text-wrap: balance;
+}
+
+.early-access {
+  margin-top: 12px;
+  padding: 12px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  color: white;
+  background: rgba(31, 8, 38, 0.38);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.handle {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+}
+
+@media (max-width: 900px) {
+  .content h1 {
+    font-size: 56px;
+  }
+
+  .tagline {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 520px) {
+  .content {
+    padding-block: max(24px, env(safe-area-inset-top))
+      max(24px, env(safe-area-inset-bottom));
+  }
+
+  .brand-lockup {
+    gap: 12px;
+  }
+
+  .brand-name {
+    font-size: 0.84rem;
+    letter-spacing: 0.24em;
+  }
+
+  .content h1 {
+    max-width: 100%;
+    font-size: 38px;
+    letter-spacing: 0.04em;
+  }
+
+  .tagline {
+    font-size: 24px;
+    letter-spacing: 0.04em;
+  }
+
+  .early-access {
+    width: min(100%, 280px);
+    padding: 12px 16px;
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+  }
+
+  .handle {
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+  }
 }

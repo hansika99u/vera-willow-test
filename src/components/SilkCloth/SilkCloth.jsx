@@ -1,215 +1,201 @@
 import { useEffect, useRef } from 'react'
 
-const silkOptions = {
-  speed: 2.4,
-  zoom: 6,
-  iterations: 12,
-  tangentForce: 0.75,
-  gradientForce: 0.15,
-  colorPhaseR: 3.11,
-  colorPhaseG: 3.11,
-  colorPhaseB: 3.11,
-  colorRange: 0.75,
-  colorBias: 0.5,
-  brightness: 1,
-  backgroundColor: '#0a0a0a',
-  opacity: 1,
-  cursorInteraction: true,
-  cursorIntensity: 1,
+const vertexShader = `#version 300 es
+in vec2 a_position;
+out vec2 v_uv;
+
+void main() {
+  v_uv = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`
+
+const fragmentShader = `#version 300 es
+precision highp float;
+
+in vec2 v_uv;
+out vec4 out_color;
+
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform float u_motion;
+
+float hash21(vec2 p) {
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
 }
 
-function drawSilkCloth(canvas, time, options, pointer) {
-  const context = canvas.getContext('2d')
-  const bounds = canvas.getBoundingClientRect()
-  const width = Number.isFinite(bounds.width) && bounds.width > 0
-    ? bounds.width
-    : window.innerWidth
-  const height = Number.isFinite(bounds.height) && bounds.height > 0
-    ? bounds.height
-    : window.innerHeight
-  const center = width * 0.5
-  const scale = Math.min(width, height)
-  const phase = time * 0.0012 * options.speed
-  const interaction = options.cursorInteraction
-    ? (pointer.x - 0.5) * options.cursorIntensity
-    : 0
-  const verticalInteraction = options.cursorInteraction
-    ? (pointer.y - 0.5) * options.cursorIntensity
-    : 0
+float noise(vec2 p) {
+  vec2 cell = floor(p);
+  vec2 local = fract(p);
+  local = local * local * (3.0 - 2.0 * local);
+  float a = hash21(cell);
+  float b = hash21(cell + vec2(1.0, 0.0));
+  float c = hash21(cell + vec2(0.0, 1.0));
+  float d = hash21(cell + vec2(1.0, 1.0));
+  return mix(mix(a, b, local.x), mix(c, d, local.x), local.y);
+}
 
-  context.clearRect(0, 0, width, height)
-  context.fillStyle = options.backgroundColor
-  context.fillRect(0, 0, width, height)
-
-  const baseGlow = context.createRadialGradient(
-    center,
-    height * 0.42,
-    0,
-    center,
-    height * 0.5,
-    scale * 0.8,
-  )
-  baseGlow.addColorStop(0, `rgba(90, 102, 114, ${0.25 + options.colorBias * 0.18})`)
-  baseGlow.addColorStop(0.48, 'rgba(30, 37, 45, 0.18)')
-  baseGlow.addColorStop(1, 'rgba(4, 6, 10, 0.8)')
-  context.fillStyle = baseGlow
-  context.fillRect(0, 0, width, height)
-
-  const ribbonCount = 24 + options.iterations
-  const ribbonWidth = width / ribbonCount
-
-  for (let ribbonIndex = -2; ribbonIndex < ribbonCount + 2; ribbonIndex += 1) {
-    const ribbonCenter = ribbonIndex * ribbonWidth
-    let waveOne = 0
-    let waveTwo = 0
-
-    for (let iteration = 1; iteration <= options.iterations; iteration += 1) {
-      const iterationScale = 1 / iteration
-      waveOne +=
-        Math.sin(
-          ribbonIndex * 0.72 * options.zoom * iterationScale +
-            phase * options.tangentForce * (1 + iteration * 0.12),
-        ) *
-        scale *
-        0.018 *
-        iterationScale
-      waveTwo +=
-        Math.cos(
-          ribbonIndex * 0.31 * options.zoom * iterationScale -
-            phase * options.gradientForce * (1 + iteration * 0.1),
-        ) *
-        scale *
-        0.014 *
-        iterationScale
-    }
-
-    const foldCenter =
-      ribbonCenter + waveOne + waveTwo + interaction * scale * 0.12
-    const foldWidth = ribbonWidth * (0.75 + Math.sin(ribbonIndex * 1.7) * 0.12)
-    const safeFoldCenter = Number.isFinite(foldCenter) ? foldCenter : ribbonCenter
-    const safeFoldWidth = Number.isFinite(foldWidth) ? foldWidth : ribbonWidth
-    const colorShift = Math.sin(options.colorPhaseR + ribbonIndex * 0.24) * options.colorRange
-    const highlight = Math.max(0.2, options.colorBias + colorShift * 0.2)
-    const hue =
-      198 +
-      Math.sin(options.colorPhaseG + ribbonIndex * 0.18) * 12 +
-      Math.sin(options.colorPhaseB + ribbonIndex * 0.11) * 5
-    const gradient = context.createLinearGradient(
-      safeFoldCenter - safeFoldWidth,
-      0,
-      safeFoldCenter + safeFoldWidth,
-      0,
-    )
-
-    gradient.addColorStop(0, 'rgba(3, 5, 9, 0.16)')
-    gradient.addColorStop(0.22, `hsla(${hue}, 18%, 48%, ${0.12 + highlight * 0.1})`)
-    gradient.addColorStop(
-      0.43,
-      `hsla(${hue}, 24%, 94%, ${0.2 + highlight * 0.3 * options.brightness})`,
-    )
-    gradient.addColorStop(0.53, `hsla(${hue}, 18%, 42%, ${0.2 + options.gradientForce * 0.2})`)
-    gradient.addColorStop(0.68, 'rgba(12, 16, 22, 0.62)')
-    gradient.addColorStop(0.86, `hsla(${hue}, 20%, 78%, ${0.12 + options.colorRange * 0.1})`)
-    gradient.addColorStop(1, 'rgba(2, 4, 8, 0.12)')
-
-    context.beginPath()
-    context.moveTo(ribbonCenter - ribbonWidth * 1.25, 0)
-    context.bezierCurveTo(
-      safeFoldCenter - safeFoldWidth,
-      height * 0.23,
-      safeFoldCenter + safeFoldWidth + verticalInteraction * scale * 0.04,
-      height * (0.66 + verticalInteraction * 0.08),
-      ribbonCenter + ribbonWidth * 1.25,
-      height,
-    )
-    context.lineTo(ribbonCenter + ribbonWidth * 1.4, height)
-    context.bezierCurveTo(
-      safeFoldCenter + safeFoldWidth * 1.3,
-      height * 0.64,
-      safeFoldCenter - safeFoldWidth * 1.3,
-      height * 0.2,
-      ribbonCenter + ribbonWidth * 1.05,
-      0,
-    )
-    context.closePath()
-    context.fillStyle = gradient
-    context.fill()
+float fabricNoise(vec2 p) {
+  float value = 0.0;
+  float amplitude = 0.58;
+  float frequency = 1.0;
+  for (int i = 0; i < 5; i++) {
+    value += noise(p * frequency) * amplitude;
+    frequency *= 2.03;
+    amplitude *= 0.5;
   }
+  return value;
+}
 
-  const sheen = context.createLinearGradient(0, 0, width, height)
-  sheen.addColorStop(0, 'rgba(255, 255, 255, 0.06)')
-  sheen.addColorStop(0.5, 'rgba(255, 255, 255, 0)')
-  sheen.addColorStop(1, 'rgba(0, 0, 0, 0.28)')
-  context.fillStyle = sheen
-  context.fillRect(0, 0, width, height)
+float clothHeight(vec2 p, float time) {
+  vec2 drift = vec2(time * 0.045, -time * 0.022);
+  float broad = fabricNoise(p * 1.08 + drift);
+  vec2 broadWarp = p + (vec2(
+    fabricNoise(p * 1.45 - drift.yx),
+    fabricNoise(p * 1.22 + drift.yx * 0.7)
+  ) - 0.5) * 0.34;
+  float folds = fabricNoise(broadWarp * 2.35 - drift * 0.55);
+  float fine = fabricNoise(broadWarp * 5.4 + drift * 0.18);
+  return broad * 0.58 + folds * 0.32 + fine * 0.1;
+}
 
-  const shimmerPosition = center + Math.sin(phase * 1.4) * width * 0.35
-  const shimmer = context.createRadialGradient(
-    shimmerPosition,
-    height * 0.45,
-    0,
-    shimmerPosition,
-    height * 0.7,
-    height * 0.7,
-  )
-  shimmer.addColorStop(0, 'rgba(235, 242, 248, 0.32)')
-  shimmer.addColorStop(1, 'rgba(235, 242, 248, 0)')
-  context.fillStyle = shimmer
-  context.fillRect(0, 0, width, height)
+void main() {
+  vec2 centered = v_uv - 0.5;
+  centered.x *= u_resolution.x / u_resolution.y;
+  float time = u_time * u_motion;
+  vec2 p = centered;
+  p += vec2(
+    sin(centered.y * 2.2 + time * 0.25),
+    cos(centered.x * 1.7 - time * 0.19)
+  ) * 0.035;
+
+  float height = clothHeight(p, time);
+  float epsilon = 0.006;
+  float height_x = clothHeight(p + vec2(epsilon, 0.0), time);
+  float height_y = clothHeight(p + vec2(0.0, epsilon), time);
+  vec3 normal = normalize(vec3(
+    (height - height_x) * 5.2,
+    (height - height_y) * 5.2,
+    1.0
+  ));
+
+  vec3 lightDirection = normalize(vec3(-0.42, 0.58, 0.72));
+  vec3 viewDirection = normalize(vec3(0.0, 0.0, 1.0));
+  float diffuse = max(dot(normal, lightDirection), 0.0);
+  float rim = pow(1.0 - max(dot(normal, viewDirection), 0.0), 2.2);
+  vec3 halfVector = normalize(lightDirection + viewDirection);
+  float specular = pow(max(dot(normal, halfVector), 0.0), 34.0);
+
+  vec3 deepPlum = vec3(0.055, 0.012, 0.075);
+  vec3 plum = vec3(0.25, 0.025, 0.21);
+  vec3 magenta = vec3(0.72, 0.045, 0.34);
+  vec3 lavender = vec3(0.48, 0.26, 0.62);
+
+  float colorFlow = smoothstep(0.18, 0.82, height);
+  vec3 clothColor = mix(deepPlum, plum, smoothstep(0.05, 0.52, height));
+  clothColor = mix(clothColor, lavender, colorFlow * 0.32);
+  clothColor = mix(clothColor, magenta, smoothstep(0.58, 0.92, height) * 0.34);
+
+  float shadow = 0.62 + diffuse * 0.62;
+  clothColor *= shadow;
+  clothColor += lavender * rim * 0.08;
+  clothColor += vec3(1.0, 0.72, 0.88) * specular * 0.38;
+  clothColor = pow(max(clothColor, 0.0), vec3(0.92));
+
+  float edgeFade = 1.0 - smoothstep(0.62, 0.9, length(centered));
+  clothColor *= 0.82 + edgeFade * 0.18;
+  out_color = vec4(clothColor, 1.0);
+}`
+
+function compileShader(gl, source, type) {
+  const shader = gl.createShader(type)
+  gl.shaderSource(shader, source)
+  gl.compileShader(shader)
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    gl.deleteShader(shader)
+    return null
+  }
+  return shader
 }
 
 export default function SilkCloth() {
   const canvasRef = useRef(null)
-  const pointerRef = useRef({ x: 0.5, y: 0.5 })
 
   useEffect(() => {
     const canvas = canvasRef.current
-    const context = canvas.getContext('2d')
+    const gl = canvas.getContext('webgl2', { antialias: true, alpha: false })
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
     let animationFrame
 
+    if (!gl) {
+      canvas.classList.add('silk-cloth--fallback')
+      return undefined
+    }
+
+    const vertex = compileShader(gl, vertexShader, gl.VERTEX_SHADER)
+    const fragment = compileShader(gl, fragmentShader, gl.FRAGMENT_SHADER)
+    if (!vertex || !fragment) {
+      canvas.classList.add('silk-cloth--fallback')
+      return undefined
+    }
+
+    const program = gl.createProgram()
+    gl.attachShader(program, vertex)
+    gl.attachShader(program, fragment)
+    gl.linkProgram(program)
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      canvas.classList.add('silk-cloth--fallback')
+      return undefined
+    }
+
+    const buffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+      gl.STATIC_DRAW,
+    )
+    gl.useProgram(program)
+    const position = gl.getAttribLocation(program, 'a_position')
+    gl.enableVertexAttribArray(position)
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0)
+
+    const resolution = gl.getUniformLocation(program, 'u_resolution')
+    const time = gl.getUniformLocation(program, 'u_time')
+    const motion = gl.getUniformLocation(program, 'u_motion')
+
     const resize = () => {
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.75)
       const bounds = canvas.getBoundingClientRect()
       const width = Math.max(1, bounds.width || window.innerWidth)
       const height = Math.max(1, bounds.height || window.innerHeight)
       canvas.width = Math.floor(width * pixelRatio)
       canvas.height = Math.floor(height * pixelRatio)
-      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
+      gl.viewport(0, 0, canvas.width, canvas.height)
+      gl.uniform2f(resolution, width, height)
     }
 
-    const handlePointerMove = (event) => {
-      pointerRef.current.x = event.clientX / window.innerWidth
-      pointerRef.current.y = event.clientY / window.innerHeight
-    }
-
-    const render = () => {
-      try {
-        drawSilkCloth(canvas, performance.now(), silkOptions, pointerRef.current)
-      } catch (error) {
-        console.error('SilkCloth render failed:', error)
-      } finally {
-        animationFrame = requestAnimationFrame(render)
-      }
+    const render = (timestamp) => {
+      gl.uniform1f(time, timestamp * 0.001)
+      gl.uniform1f(motion, reducedMotion.matches ? 0.0 : 1.0)
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+      animationFrame = requestAnimationFrame(render)
     }
 
     resize()
     window.addEventListener('resize', resize)
-    window.addEventListener('pointermove', handlePointerMove)
+    reducedMotion.addEventListener('change', resize)
     animationFrame = requestAnimationFrame(render)
 
     return () => {
       cancelAnimationFrame(animationFrame)
       window.removeEventListener('resize', resize)
-      window.removeEventListener('pointermove', handlePointerMove)
+      reducedMotion.removeEventListener('change', resize)
+      gl.deleteBuffer(buffer)
+      gl.deleteProgram(program)
     }
   }, [])
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="silk-cloth"
-      style={{ opacity: silkOptions.opacity }}
-      aria-hidden="true"
-    />
-  )
+  return <canvas ref={canvasRef} className="silk-cloth" aria-hidden="true" />
 }
