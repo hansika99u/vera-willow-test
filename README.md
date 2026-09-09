@@ -45,6 +45,3 @@ REACTBITS_LICENSE_KEY=your-license-key
 
 Store the real value in `.env.local`. Environment files containing secrets are ignored by Git. Use `.env.example` as a template.
 
-## GitHub Pages
-
-Build the site with `npm run build`, then deploy the generated `dist` directory through GitHub Actions. Do not commit `dist` or `node_modules`.
