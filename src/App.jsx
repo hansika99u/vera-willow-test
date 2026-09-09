@@ -9,7 +9,15 @@ function App() {
       </div>
 
       <section className="content">
-        <h1>Coming Soon</h1>
+        <div className="brand-lockup">
+          <p className="brand-name">Vera Willow</p>
+          <h1>Coming Soon</h1>
+          <p className="tagline">Wear Your Mood.</p>
+          <button className="early-access" type="button">
+            Get Early Access
+          </button>
+          <p className="handle">@verawillow</p>
+        </div>
       </section>
     </main>
   )
