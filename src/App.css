@@ -1,0 +1,61 @@
+#root {
+  min-height: 100vh;
+}
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #101010;
+}
+
+.silk-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.silk-background::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(ellipse at 25% 45%, rgba(206, 220, 231, 0.3), transparent 18%),
+    radial-gradient(ellipse at 72% 55%, rgba(99, 120, 137, 0.25), transparent 22%),
+    linear-gradient(112deg, #080b10 12%, #4c5d6b 35%, #121820 48%, #7f929e 60%, #080b10 78%);
+  background-size: 180% 180%;
+  filter: blur(28px);
+  animation: satin-drift 4s ease-in-out infinite alternate;
+}
+
+.silk-cloth {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: screen;
+}
+
+@keyframes satin-drift {
+  from {
+    transform: translate3d(-12%, 3%, 0) rotate(-5deg) scale(1.12);
+    background-position: 0% 50%;
+  }
+  to {
+    transform: translate3d(12%, -3%, 0) rotate(5deg) scale(1.12);
+    background-position: 100% 50%;
+  }
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: white;
+  text-align: center;
+}
