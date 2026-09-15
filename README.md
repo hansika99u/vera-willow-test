@@ -1,47 +1,38 @@
 # Vera Willow
 
-A single-page React website with an animated procedural silk-cloth background and a Coming Soon message.
+**Wear Your Mood.**
 
-## Requirements
+Vera Willow is an emerging clothing brand built around expressive style, personal mood, and the freedom to dress with intention.
 
-- Node.js 18 or newer
-- npm
+This repository contains the brand's public preview website. The experience introduces Vera Willow ahead of launch through a quiet, atmospheric coming-soon page inspired by the movement and softness of fabric.
 
-## Run Locally
+## The Preview
 
-```bash
-npm install
-npm run dev
-```
+The landing page is designed to feel like the first glimpse into the Vera Willow world:
 
-Open the local URL printed by Vite.
+- A full-screen animated silk backdrop
+- A minimal coming-soon message
+- A prominent early-access invitation
+- A simple social touchpoint for staying connected
+- A responsive experience for mobile and desktop visitors
 
-## Checks
+## Brand Direction
 
-```bash
-npm run lint
-npm run build
-```
+Vera Willow explores the space between softness and self-expression. The visual language is elegant, tactile, and deliberately understated, leaving room for the clothing and the person wearing it to take center stage.
 
-## Project Structure
+## Launch Status
 
-```text
-src/
-├── components/SilkCloth/
-├── App.jsx
-├── App.css
-└── index.css
-```
+Vera Willow is currently preparing for launch. New collection details, early-access opportunities, and further brand updates will be shared as they become available.
 
-`SilkCloth` renders the full-page animated background. Page content is rendered above it in `App.jsx`.
+## Stay Connected
 
-## Environment Variables
+Follow Vera Willow for launch news and behind-the-scenes updates:
 
-React Bits Pro installation uses a local license key when needed:
+- [Instagram](https://www.instagram.com/verawillow)
+- [Facebook](https://www.facebook.com/verawillow)
+- [TikTok](https://www.tiktok.com/@verawillow)
 
-```env
-REACTBITS_LICENSE_KEY=your-license-key
-```
+## Project Note
 
-Store the real value in `.env.local`. Environment files containing secrets are ignored by Git. Use `.env.example` as a template.
+This is the official public preview repository for Vera Willow. It is intended to reflect the brand's pre-launch presence while the full clothing experience is being developed.
 
