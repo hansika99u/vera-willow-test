@@ -28,9 +28,9 @@ Vera Willow is currently preparing for launch. New collection details, early-acc
 
 Follow Vera Willow for launch news and behind-the-scenes updates:
 
-- [Instagram](https://www.instagram.com/verawillowofficial/)
-- [Facebook](https://www.facebook.com/profile.php?id=61586561345281)
-- [TikTok](https://www.tiktok.com/@vera_willow?_r=1&_t=ZS-99n5qwZbpnZ)
+- <a href="https://www.instagram.com/verawillowofficial/" target="_blank" rel="noopener noreferrer">Instagram</a>
+- <a href="https://www.facebook.com/profile.php?id=61586561345281" target="_blank" rel="noopener noreferrer">Facebook</a>
+- <a href="https://www.tiktok.com/@vera_willow?_r=1&_t=ZS-99n5qwZbpnZ" target="_blank" rel="noopener noreferrer">TikTok</a>
 
 ## Project Note
 
