@@ -44,10 +44,31 @@
 }
 
 .brand-lockup {
-  width: min(100%, 720px);
+  width: min(100%, 620px);
   display: grid;
   justify-items: center;
-  gap: 14px;
+  gap: 0;
+}
+
+.brand-heading,
+.hero-message,
+.action-area,
+.community-area {
+  display: grid;
+  justify-items: center;
+}
+
+.hero-message {
+  margin-top: clamp(42px, 8vh, 84px);
+}
+
+.action-area {
+  margin-top: clamp(34px, 5vh, 52px);
+}
+
+.community-area {
+  margin-top: clamp(42px, 7vh, 72px);
+  gap: 16px;
 }
 
 .brand-name,
@@ -86,8 +107,8 @@
 }
 
 .early-access {
-  margin-top: 12px;
-  padding: 12px 22px;
+  min-width: 194px;
+  padding: 14px 24px;
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 999px;
   color: white;
@@ -104,6 +125,33 @@
   color: rgba(255, 255, 255, 0.72);
   font-size: 0.72rem;
   letter-spacing: 0.18em;
+}
+
+.social-links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.social-links a {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 180ms ease, text-shadow 180ms ease;
+}
+
+.social-links a:hover,
+.social-links a:focus-visible {
+  color: #f2c7dc;
+  text-shadow: 0 0 16px rgba(242, 199, 220, 0.7);
+}
+
+.social-links a:focus-visible {
+  outline: 1px solid #f2c7dc;
+  outline-offset: 5px;
 }
 
 @media (max-width: 900px) {
@@ -123,7 +171,20 @@
   }
 
   .brand-lockup {
-    gap: 12px;
+    width: min(100%, 430px);
+  }
+
+  .hero-message {
+    margin-top: 48px;
+  }
+
+  .action-area {
+    margin-top: 34px;
+  }
+
+  .community-area {
+    margin-top: 48px;
+    gap: 16px;
   }
 
   .brand-name {
@@ -152,5 +213,16 @@
   .handle {
     font-size: 0.66rem;
     letter-spacing: 0.14em;
+  }
+
+  .social-links {
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .social-links a {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
   }
 }
